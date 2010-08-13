@@ -26,7 +26,7 @@ $table = new beauteous();
 
 $table->row(array_keys($tabular_data[0]));
 
-$colors = array('blue', 'red', 'yellow');
+$colors = array('light_purple', 'cyan', 'blue', 'red', 'yellow');
 foreach($tabular_data as $chunk)
 {
 	$row = $table->row($chunk);
