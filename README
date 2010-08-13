@@ -8,5 +8,27 @@ Description:
 Beauteous is a PHP class that helps developers easily create beautiful CLI output.
 
 Usage:
-??? 
+require_once('beauteous.php');
+$table = new beauteous();
 
+$table->row(array('thing 1', 'thing 2', 'thing 3'))->make_header();
+
+$table->row(array('A', 'B', 'C'));
+
+$row = $table->row();
+$row->cell('D');
+$row->cell('E');
+$row->cell('F');
+$row->background('yellow');
+
+echo $table->draw();
+
+...
+
+> php example.php
+-------------------------------
+| THING 1 | THING 2 | THING 3 |
+-------------------------------
+| A 	  | B       | C       |
+| D       | E       | F       | <-- This would be yellow.
+-------------------------------
