@@ -99,14 +99,14 @@ class beauteous
 		
 		$colorized = '';
 	
-		if(isset($bg_colors[$background]))
+		if(isset(self::$bg_colors[$background]))
 		{
-			$colorized .= "\033[{$bg_colors[$background]}m"; 
+			$colorized .= "\033[".self::$bg_colors[$background]."m"; 
 		}
 		
-		if(isset($fg_colors[$foreground]))
+		if(isset(self::$fg_colors[$foreground]))
 		{
-			$colorized .= "\033[{$fg_colors[$foreground]}m"; 
+			$colorized .= "\033[".self::$fg_colors[$foreground]."m"; 
 		}
 		
 		return $colorized .= $string."\033[0m";
@@ -114,11 +114,11 @@ class beauteous
 	
 	public static function valid_color($color, $type = 'bg')
 	{
-		if($type == 'background' && isset($this->bg_colors[$color]))
+		if($type == 'bg' && isset(self::$bg_colors[$color]))
 		{
 			return true;
 		}
-		else if($type == 'foreground' && isset($this->fg_colors[$color]))
+		else if($type == 'fg' && isset(self::$fg_colors[$color]))
 		{
 			return true;
 		}
