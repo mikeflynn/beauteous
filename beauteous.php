@@ -4,6 +4,7 @@ class beauteous
 	private $rows = array();
 	protected $horz_border_char = '-';
 	protected $vert_border_char = '|';
+	protected $col_width = array();
 	
 	private static $fg_colors = array();
 	private static $bg_colors = array();
@@ -46,34 +47,39 @@ class beauteous
 		if(count($this->rows) == 0) return false;
 			
 		// Figure out the max field width
-		$max_width = 0;
+		$max_width = array();
 		
 		foreach($this->rows as $row)
 		{
-			if($row->width() > $max_width) $max_width = $row->width();		
+			$widths = $row->column_widths();
+			foreach($widths as $key=>$width)
+			{
+				if($width > $max_width[$key]) $max_width[$key] = $width;
+			}
 		}
-				
+					
 		// Combine the rows
 		$row_strings = array();
-		foreach($this->rows as $row)
+		foreach($this->rows as $key=>$row)
 		{
-			$row_strings[] = $row->draw($max_width, $this->get_vert_border());
+			$row->draw($max_width, $this->get_vert_border());
 		}
 		
 		// Make the divider
 		$divider = '';
-		for($i=0;$i<strlen($row_strings[0]);$i++)
+		for($i=0;$i<strlen($this->rows[0]->get_output());$i++)
 		{
 			$divider .= $this->get_horz_border();
 		}		
 		
 		$table_string = $divider."\n";
-		foreach($row_strings as $row_string)
+		foreach($this->rows as $row)
 		{
-			 $table_string.= $row_string."\n".$divider."\n";
+			 $table_string.= $row->get_output()."\n";
+			 if($row->is_header()) $table_string .= $divider."\n";
 		}
 		
-		return $table_string;
+		return $table_string.$divider."\n";
 	}
 	
 	public function row($data = null)
@@ -132,6 +138,8 @@ class beauteous_row
 	protected $items = array();
 	protected $foreground = null;
 	protected $background = null;
+	protected $header = false;
+	protected $output = '';
 	
 	public function __construct($items = null)
 	{
@@ -142,6 +150,26 @@ class beauteous_row
 				$this->cell($row);
 			}
 		}
+	}
+	
+	public function set_output($string)
+	{
+		if(!empty($string)) $this->output = $string;
+	}
+	
+	public function get_output()
+	{
+		return $this->output;
+	}
+	
+	public function make_header()
+	{
+		$this->header = true;
+	}
+	
+	public function is_header()
+	{
+		return $this->header;
 	}
 	
 	public function foreground($color)
@@ -205,15 +233,29 @@ class beauteous_row
 	{
 		$string = '';
 		
-		foreach($this->items as $item)
+		foreach($this->items as $key=>$item)
 		{	
-			$data = $this->pad($item['data'], $width);
+			$data = $this->pad($item['data'], $width[$key]);
+			
+			if($this->is_header()) $data = strtoupper($data);
+			
 			$string .= $border.' '.beauteous::colorize($data, $item['fg'], $item['bg']).' ';
 		}
 		
 		$string .= $border;
 		
-		return beauteous::colorize($string, $this->foreground, $this->background);
+		$this->set_output(beauteous::colorize($string, $this->foreground, $this->background));
+	}
+	
+	public function column_widths()
+	{
+		$widths = array();
+		foreach($this->items as $key=>$item)
+		{
+			$widths[$key] = strlen($item['data']);
+		}
+		
+		return $widths;
 	}
 }
 ?>
